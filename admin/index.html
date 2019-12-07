@@ -92,7 +92,11 @@
             }
         } */
 
-
+        $('.logout').on('click', function () {
+            alert('确定要退出吗靓仔');
+            localStorage.removeItem('token');
+            location.href = './login.html';
+        })
 
 
 
