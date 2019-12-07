@@ -55,10 +55,11 @@
         </div>
     </div>
 </body>
+<script src="./libs/http.js"></script>
 <script>
     $(function () {
         $.ajax({
-            url: 'http://localhost:8080/api/v1/admin/user/info',
+            url: allUrl.user_info,
             type: 'get',
             headers: { 'Authorization': localStorage.getItem('token') },
             // 为了每次跳转的页面都有这个token不用每次都获取一次数据看lis中的jq1.12.4
@@ -72,7 +73,7 @@
                 }
             }
         })
-
+        // console.log(allUrl.user_login)
 
         /* let xhr = new XMLHttpRequest();
         xhr.open('get', 'http://localhost:8080/api/v1/admin/user/info');
