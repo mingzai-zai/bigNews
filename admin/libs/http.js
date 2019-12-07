@@ -24,5 +24,5 @@
         comment_delete: base + '/admin/comment/delete',//文章评论删除
     }
     w.allUrl = allUrl;
-    // 此时被自调用函数包着呢，要靠window释放到外面，以便来调用；
+    // 此时被自调用函数包着呢，要靠window释放到外面，以便来调用；因为需要多次的导入所以用沙箱盒子
 })(window);
