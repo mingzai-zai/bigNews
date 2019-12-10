@@ -102,7 +102,18 @@
             location.href = './login.html';
         })
 
-
+        $('.level01').on('click', function () {
+            $(this).addClass('active').siblings().removeClass('active');
+            if ($(this).index() == 1) {
+                // console.log(1);
+                $('.level02').slideToggle();
+                $(this).find('b').toggleClass('rotate0');
+                $('.level02 li:eq(0) a')[0].click();
+            }
+        })
+        $('.level02 li').on('click', function () {
+            $(this).addClass('active').siblings().removeClass('active');
+        })
 
 
     })
