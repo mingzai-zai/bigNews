@@ -131,6 +131,10 @@
                             callback(res);
                             $('#pagination-demo').show();
                             $('#tebie').hide();
+                        } else if (pages > 1 && res.data.data.length == 0) {
+                            get(pages - 1, function (res) {
+                                $('#pagination-demo').twbsPagination('changeTotalPages', res.data.totalPage, pages - 1);
+                            })
                         } else if (res.data.data.length == 0) {
                             $('#pagination-demo').hide();
                             $('#tebie').show();
