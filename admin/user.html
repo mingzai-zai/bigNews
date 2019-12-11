@@ -69,8 +69,66 @@
         </div>
     </div>
 </body>
+<script src="./libs/http.js"></script>
 <script>
     $(function () {
+        // 首先获取所有信息，把信息填进去；把$('#exampleInputFile')隐藏，点击图片也是可以上传的因为有label;
+        $.get({
+            url: allUrl.user_detail,
+            success: function (res) {
+                if (res.code === 200) {
+                    // console.log(res);
+                    for (let key in res.data) {
+                        $('.' + key).val(res.data[key]);
+                    }
+                    $('.user_pic').attr('src', res.data.userPic);
+                    $('#exampleInputFile').hide();
+                }
+
+            }
+        })
+        // 然后上传图片；同时显示出来嘛;
+        $('#exampleInputFile').on('change', function () {
+            // console.dir(this);
+            // console.log($(this));
+            // console.log(1);
+            let file = this.files[0];
+            let url = URL.createObjectURL(file);
+            $('.user_pic').attr('src', url);
+        })
+        // 然后就是修改完成后上传，同时渲染外面的数据;
+        $('.btn-success').on('click', function (e) {
+            e.preventDefault()
+            let data = $('#form')[0];
+            // 只能放dom元素
+            let fd = new FormData(data);
+            $.post({
+                url: allUrl.user_edit,
+                data: fd,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                    if (res.code === 200) {
+                        // console.log(res);
+                        // parent.location.reload();这样会跳到首页的
+                        $.ajax({
+                            url: allUrl.user_info,
+                            type: 'get',
+                            typedata: 'json',
+                            success: function (res) {
+                                console.log(res);
+                                if (res.code === 200) {
+                                    parent.$('.user_info img').attr('src', res.data.userPic);
+                                    parent.$('.user_info span').html('欢迎&nbsp;&nbsp;' + res.data.nickname);
+                                    parent.$('.user_center_link img').attr('src', res.data.userPic);
+                                }
+                            }
+                        })
+                    }
+                }
+            })
+
+        })
 
     })
 
