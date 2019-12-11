@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="./css/iconfont.css">
     <link rel="stylesheet" href="./css/main.css">
     <script src="./libs/jquery-1.12.4.min.js"></script>
+    <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="./libs/jquery.twbsPagination.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
 </head>
@@ -25,11 +27,11 @@
                 <div class="col-xs-6">
                     <form class="form-inline">
                         <select id="selCategory" name="" class="form-control input-sm">
-                            <option value="">所有分类</option>
+                            <!--  <option value="">所有分类</option>
                             <option>未分类</option>
                             <option>奇趣事</option>
                             <option>会生活</option>
-                            <option>爱旅行</option>
+                            <option>爱旅行</option> -->
                         </select>
                         <select id="selStatus" name="" class="form-control input-sm">
                             <option value="">所有状态</option>
@@ -55,7 +57,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <!-- <tr>
                         <td>王积千造统最头</td>
                         <td>杰克</td>
                         <td>奇趣事</td>
@@ -65,13 +67,121 @@
                             <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
                             <a href="javascript:void(0);" class="btn btn-danger btn-xs delete">删除</a>
                         </td>
-                    </tr>
+                    </tr> -->
                 </tbody>
             </table>
             <div class="row text-center">
+                <ul id="pagination-demo" class="pagination-sm"></ul>
+                <div id="tebie">已经没有数据</div>
             </div>
         </div>
     </div>
 </body>
+<script type="text/html" id="option-list">
+    <option value="">所有分类</option>
+  {{each $data v i}}
+       <option value="{{v.id}}">{{v.name}}</option>
+    {{/each}}
+</script>
+<script type="text/html" id="list">
+    {{each $data v i}}
+    <tr>
+            <td>{{v.title}}</td>
+            <td>{{v.author}}</td>
+            <td>{{v.category}}</td>
+            <td class="text-center">{{v.date}}</td>
+            <td class="text-center">{{v.state}}</td>
+            <td class="text-center">
+                <a href="article_edit.html?id={{v.id}}" class="btn btn-default btn-xs">编辑</a>
+                <a href="javascript:void(0);" class="btn btn-danger btn-xs delete" data-id="{{v.id}}">删除</a>
+            </td>
+        </tr>
+    {{/each}}
+</script>
+<script src="./libs/http.js"></script>
+<script>
+    $(function () {
+        // 先是获取到
+        $.get({
+            url: allUrl.category_list,
+            success: function (res) {
+                if (res.code === 200) {
+                    // console.log(res);
+                    let htmlStr = template('option-list', res.data);
+                    $('#selCategory').html(htmlStr);
+                }
+            }
+        })
+
+        function get(pages, callback) {
+            $.get({
+                url: allUrl.article_query,
+                data: {
+                    type: $('#selCategory').val(),
+                    state: $('#selStatus').val(),
+                    page: pages,
+                    perpage: hang,
+                },
+                success: function (res) {
+                    if (res.code === 200) {
+                        // console.log(res);
+                        let htmlStr = template('list', res.data.data);
+                        $('tbody').html(htmlStr);
+                        if (callback != null && res.data.data.length != 0) {
+                            callback(res);
+                            $('#pagination-demo').show();
+                            $('#tebie').hide();
+                        } else if (res.data.data.length == 0) {
+                            $('#pagination-demo').hide();
+                            $('#tebie').show();
+                        }
+                    }
+                }
+            })
+        }
+        let pages = 1;
+        let hang = 10;
+        get(pages, function (res) {
+            $('#pagination-demo').twbsPagination({
+                totalPages: res.data.totalPage,
+                visiblePages: 7,
+                first: '首页',
+                next: '下一页',
+                prev: '上一页',
+                last: '尾页',
+                onPageClick: function (event, page) {
+                    pages = page;
+                    get(page, null);
+                }
+            });
+        })
+
+        $('#btnSearch').on('click', function (e) {
+            e.preventDefault();
+            get(pages, function (res) {
+                $('#pagination-demo').twbsPagination('changeTotalPages', res.data.totalPage, 1);
+            })
+        })
+
+        $('tbody').on('click', '.delete', function () {
+            let id = $(this).attr('data-id');
+            if (confirm('确认要删除吗')) {
+                $.post({
+                    url: allUrl.article_delete,
+                    data: { id: id },
+                    success: function (res) {
+                        get(pages, function (res) {
+                            $('#pagination-demo').twbsPagination('changeTotalPages', res.data.totalPage, pages);
+                        })
+                    }
+                })
+            }
+        })
+
+
+
+
+    })
+</script>
 
 </html>
